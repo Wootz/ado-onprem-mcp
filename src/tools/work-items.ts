@@ -1,4 +1,5 @@
 import * as azdev from 'azure-devops-node-api';
+import { z } from 'zod';
 import { createSuccessResponse } from '../utils.js';
 import { logger } from '../logger.js';
 import type * as WorkItemTrackingInterfaces from 'azure-devops-node-api/interfaces/WorkItemTrackingInterfaces.js';
@@ -24,157 +25,93 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'mcp_ado_work_items_get',
     description: 'Get work item by ID',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        id: { type: 'number', description: 'Work item ID' },
-        expand: {
-          type: 'string',
-          enum: ['None', 'Relations', 'Fields', 'Links', 'All'],
-          description: 'Expansion level for work item',
-        },
-      },
-      required: ['id'],
-    },
+    inputSchema: z.object({
+      id: z.number().describe('Work item ID'),
+      expand: z.enum(['None', 'Relations', 'Fields', 'Links', 'All']).optional().describe('Expansion level for work item'),
+    }),
   },
   {
     name: 'mcp_ado_work_items_create',
     description: 'Create a new work item',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        project: { type: 'string', description: 'Project name or ID' },
-        type: { type: 'string', description: 'Work item type (e.g., Bug, Task, User Story)' },
-        title: { type: 'string', description: 'Work item title' },
-        description: { type: 'string', description: 'Work item description' },
-        assignedTo: { type: 'string', description: 'Assigned to (email or display name)' },
-        areaPath: { type: 'string', description: 'Area path' },
-        iterationPath: { type: 'string', description: 'Iteration path' },
-        fields: {
-          type: 'object',
-          description: 'Additional fields as key-value pairs',
-        },
-      },
-      required: ['project', 'type', 'title'],
-    },
+    inputSchema: z.object({
+      project: z.string().describe('Project name or ID'),
+      type: z.string().describe('Work item type (e.g., Bug, Task, User Story)'),
+      title: z.string().describe('Work item title'),
+      description: z.string().optional().describe('Work item description'),
+      assignedTo: z.string().optional().describe('Assigned to (email or display name)'),
+      areaPath: z.string().optional().describe('Area path'),
+      iterationPath: z.string().optional().describe('Iteration path'),
+      fields: z.record(z.string(), z.unknown()).optional().describe('Additional fields as key-value pairs'),
+    }),
   },
   {
     name: 'mcp_ado_work_items_update',
     description: 'Update an existing work item',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        id: { type: 'number', description: 'Work item ID' },
-        fields: {
-          type: 'object',
-          description: 'Fields to update as key-value pairs',
-        },
-      },
-      required: ['id', 'fields'],
-    },
+    inputSchema: z.object({
+      id: z.number().describe('Work item ID'),
+      fields: z.record(z.string(), z.unknown()).describe('Fields to update as key-value pairs'),
+    }),
   },
   {
     name: 'mcp_ado_work_items_delete',
     description: 'Delete a work item',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        id: { type: 'number', description: 'Work item ID' },
-        destroy: {
-          type: 'boolean',
-          description: 'Permanently destroy the work item (default: false)',
-        },
-      },
-      required: ['id'],
-    },
+    inputSchema: z.object({
+      id: z.number().describe('Work item ID'),
+      destroy: z.boolean().optional().describe('Permanently destroy the work item (default: false)'),
+    }),
   },
   {
     name: 'mcp_ado_work_items_query_by_wiql',
     description: 'Query work items using WIQL (Work Item Query Language)',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        project: { type: 'string', description: 'Project name or ID' },
-        query: { type: 'string', description: 'WIQL query string' },
-        top: { type: 'number', description: 'Maximum number of results' },
-      },
-      required: ['project', 'query'],
-    },
+    inputSchema: z.object({
+      project: z.string().describe('Project name or ID'),
+      query: z.string().describe('WIQL query string'),
+      top: z.number().optional().describe('Maximum number of results'),
+    }),
   },
   {
     name: 'mcp_ado_work_items_add_comment',
     description: 'Add a comment to a work item',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        project: { type: 'string', description: 'Project name or ID' },
-        workItemId: { type: 'number', description: 'Work item ID' },
-        text: { type: 'string', description: 'Comment text' },
-      },
-      required: ['project', 'workItemId', 'text'],
-    },
+    inputSchema: z.object({
+      project: z.string().describe('Project name or ID'),
+      workItemId: z.number().describe('Work item ID'),
+      text: z.string().describe('Comment text'),
+    }),
   },
   {
     name: 'mcp_ado_work_items_get_comments',
     description: 'Get comments for a work item',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        project: { type: 'string', description: 'Project name or ID' },
-        workItemId: { type: 'number', description: 'Work item ID' },
-        top: { type: 'number', description: 'Maximum number of comments' },
-      },
-      required: ['project', 'workItemId'],
-    },
+    inputSchema: z.object({
+      project: z.string().describe('Project name or ID'),
+      workItemId: z.number().describe('Work item ID'),
+      top: z.number().optional().describe('Maximum number of comments'),
+    }),
   },
   {
     name: 'mcp_ado_work_items_add_link',
     description: 'Add a link between work items',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        id: { type: 'number', description: 'Source work item ID' },
-        targetId: { type: 'number', description: 'Target work item ID' },
-        linkType: {
-          type: 'string',
-          description: 'Link type (e.g., Related, Parent, Child)',
-        },
-        comment: { type: 'string', description: 'Link comment' },
-      },
-      required: ['id', 'targetId', 'linkType'],
-    },
+    inputSchema: z.object({
+      id: z.number().describe('Source work item ID'),
+      targetId: z.number().describe('Target work item ID'),
+      linkType: z.string().describe('Link type (e.g., Related, Parent, Child)'),
+      comment: z.string().optional().describe('Link comment'),
+    }),
   },
   {
     name: 'mcp_ado_work_items_get_updates',
     description: 'Get revision history for a work item',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        id: { type: 'number', description: 'Work item ID' },
-        top: { type: 'number', description: 'Maximum number of updates' },
-      },
-      required: ['id'],
-    },
+    inputSchema: z.object({
+      id: z.number().describe('Work item ID'),
+      top: z.number().optional().describe('Maximum number of updates'),
+    }),
   },
   {
     name: 'mcp_ado_work_items_batch_get',
     description: 'Get multiple work items by IDs',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        ids: {
-          type: 'array',
-          items: { type: 'number' },
-          description: 'Array of work item IDs',
-        },
-        expand: {
-          type: 'string',
-          enum: ['None', 'Relations', 'Fields', 'Links', 'All'],
-          description: 'Expansion level',
-        },
-      },
-      required: ['ids'],
-    },
+    inputSchema: z.object({
+      ids: z.array(z.number()).describe('Array of work item IDs'),
+      expand: z.enum(['None', 'Relations', 'Fields', 'Links', 'All']).optional().describe('Expansion level'),
+    }),
   },
 ];
 

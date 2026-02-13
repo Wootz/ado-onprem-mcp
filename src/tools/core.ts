@@ -1,4 +1,5 @@
 import * as azdev from 'azure-devops-node-api';
+import { z } from 'zod';
 import { createSuccessResponse } from '../utils.js';
 import { logger } from '../logger.js';
 
@@ -6,24 +7,11 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'mcp_ado_core_list_projects',
     description: 'List all projects in the Azure DevOps collection',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        stateFilter: {
-          type: 'string',
-          enum: ['all', 'wellFormed', 'deleting', 'new', 'unchanged'],
-          description: 'Filter projects by state (default: all)',
-        },
-        top: {
-          type: 'number',
-          description: 'Maximum number of projects to return',
-        },
-        skip: {
-          type: 'number',
-          description: 'Number of projects to skip',
-        },
-      },
-    },
+    inputSchema: z.object({
+      stateFilter: z.enum(['all', 'wellFormed', 'deleting', 'new', 'unchanged']).optional().describe('Filter projects by state (default: all)'),
+      top: z.number().optional().describe('Maximum number of projects to return'),
+      skip: z.number().optional().describe('Number of projects to skip'),
+    }),
   },
 ];
 

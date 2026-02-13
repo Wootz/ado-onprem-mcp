@@ -18,7 +18,7 @@ export async function configureAllTools(
   for (const toolDef of ALL_TOOLS) {
     server.registerTool(
       toolDef.name,
-      { description: toolDef.description, inputSchema: toolDef.inputSchema as any },
+      { description: toolDef.description, inputSchema: toolDef.inputSchema },
       async (args: any) => {
         try {
           for (const handler of TOOL_HANDLERS) {

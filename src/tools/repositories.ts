@@ -1,4 +1,5 @@
 import * as azdev from 'azure-devops-node-api';
+import { z } from 'zod';
 import { createSuccessResponse } from '../utils.js';
 import { logger } from '../logger.js';
 
@@ -6,108 +7,68 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'mcp_ado_repos_list_pull_requests',
     description: 'List pull requests in a repository',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        repositoryId: { type: 'string', description: 'Repository ID or name' },
-        project: { type: 'string', description: 'Project name or ID' },
-        status: {
-          type: 'string',
-          enum: ['active', 'abandoned', 'completed', 'all'],
-          description: 'PR status filter',
-        },
-        creatorId: { type: 'string', description: 'Creator user ID' },
-        reviewerId: { type: 'string', description: 'Reviewer user ID' },
-        top: { type: 'number', description: 'Maximum number of PRs' },
-      },
-      required: ['repositoryId', 'project'],
-    },
+    inputSchema: z.object({
+      repositoryId: z.string().describe('Repository ID or name'),
+      project: z.string().describe('Project name or ID'),
+      status: z.enum(['active', 'abandoned', 'completed', 'all']).optional().describe('PR status filter'),
+      creatorId: z.string().optional().describe('Creator user ID'),
+      reviewerId: z.string().optional().describe('Reviewer user ID'),
+      top: z.number().optional().describe('Maximum number of PRs'),
+    }),
   },
   {
     name: 'mcp_ado_repos_get_pull_request',
     description: 'Get pull request details',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        pullRequestId: { type: 'number', description: 'Pull request ID' },
-        repositoryId: { type: 'string', description: 'Repository ID or name' },
-        project: { type: 'string', description: 'Project name or ID' },
-      },
-      required: ['pullRequestId', 'repositoryId', 'project'],
-    },
+    inputSchema: z.object({
+      pullRequestId: z.number().describe('Pull request ID'),
+      repositoryId: z.string().describe('Repository ID or name'),
+      project: z.string().describe('Project name or ID'),
+    }),
   },
   {
     name: 'mcp_ado_repos_create_pull_request',
     description: 'Create a new pull request',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        repositoryId: { type: 'string', description: 'Repository ID or name' },
-        project: { type: 'string', description: 'Project name or ID' },
-        sourceBranch: { type: 'string', description: 'Source branch name' },
-        targetBranch: { type: 'string', description: 'Target branch name' },
-        title: { type: 'string', description: 'PR title' },
-        description: { type: 'string', description: 'PR description' },
-        reviewers: {
-          type: 'array',
-          items: { type: 'string' },
-          description: 'Array of reviewer IDs',
-        },
-      },
-      required: ['repositoryId', 'project', 'sourceBranch', 'targetBranch', 'title'],
-    },
+    inputSchema: z.object({
+      repositoryId: z.string().describe('Repository ID or name'),
+      project: z.string().describe('Project name or ID'),
+      sourceBranch: z.string().describe('Source branch name'),
+      targetBranch: z.string().describe('Target branch name'),
+      title: z.string().describe('PR title'),
+      description: z.string().optional().describe('PR description'),
+      reviewers: z.array(z.string()).optional().describe('Array of reviewer IDs'),
+    }),
   },
   {
     name: 'mcp_ado_repos_update_pull_request',
     description: 'Update a pull request',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        pullRequestId: { type: 'number', description: 'Pull request ID' },
-        repositoryId: { type: 'string', description: 'Repository ID or name' },
-        project: { type: 'string', description: 'Project name or ID' },
-        status: {
-          type: 'string',
-          enum: ['active', 'abandoned', 'completed'],
-          description: 'PR status',
-        },
-        title: { type: 'string', description: 'PR title' },
-        description: { type: 'string', description: 'PR description' },
-      },
-      required: ['pullRequestId', 'repositoryId', 'project'],
-    },
+    inputSchema: z.object({
+      pullRequestId: z.number().describe('Pull request ID'),
+      repositoryId: z.string().describe('Repository ID or name'),
+      project: z.string().describe('Project name or ID'),
+      status: z.enum(['active', 'abandoned', 'completed']).optional().describe('PR status'),
+      title: z.string().optional().describe('PR title'),
+      description: z.string().optional().describe('PR description'),
+    }),
   },
   {
     name: 'mcp_ado_repos_get_pr_threads',
     description: 'Get review threads for a pull request',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        pullRequestId: { type: 'number', description: 'Pull request ID' },
-        repositoryId: { type: 'string', description: 'Repository ID or name' },
-        project: { type: 'string', description: 'Project name or ID' },
-      },
-      required: ['pullRequestId', 'repositoryId', 'project'],
-    },
+    inputSchema: z.object({
+      pullRequestId: z.number().describe('Pull request ID'),
+      repositoryId: z.string().describe('Repository ID or name'),
+      project: z.string().describe('Project name or ID'),
+    }),
   },
   {
     name: 'mcp_ado_repos_create_pr_thread',
     description: 'Create a review thread on a pull request',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        pullRequestId: { type: 'number', description: 'Pull request ID' },
-        repositoryId: { type: 'string', description: 'Repository ID or name' },
-        project: { type: 'string', description: 'Project name or ID' },
-        content: { type: 'string', description: 'Comment content' },
-        status: {
-          type: 'string',
-          enum: ['active', 'fixed', 'wontFix', 'closed', 'byDesign', 'pending'],
-          description: 'Thread status',
-        },
-      },
-      required: ['pullRequestId', 'repositoryId', 'project', 'content'],
-    },
+    inputSchema: z.object({
+      pullRequestId: z.number().describe('Pull request ID'),
+      repositoryId: z.string().describe('Repository ID or name'),
+      project: z.string().describe('Project name or ID'),
+      content: z.string().describe('Comment content'),
+      status: z.enum(['active', 'fixed', 'wontFix', 'closed', 'byDesign', 'pending']).optional().describe('Thread status'),
+    }),
   },
 ];
 
