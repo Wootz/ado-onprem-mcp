@@ -4,37 +4,30 @@
 
 ## 設定
 
-### 建置專案
-
-本專案使用 [pnpm](https://pnpm.io/) 進行套件管理。
-
-```bash
-pnpm install
-pnpm run build
-```
-
-### MCP 設定
-
 在支援 MCP 的客戶端設定檔中加入：
 
 ```json
 {
   "mcpServers": {
     "azure-devops-onprem": {
-      "command": "node",
-      "args": [
-        "/absolute/path/to/ado-onprem-mcp/dist/index.js"
-      ],
+      "command": "npx",
+      "args": ["-y", "@wootz/ado-onprem-mcp"],
       "env": {
         "ADO_SERVER_URL": "https://tfs.company.com/DefaultCollection",
         "ADO_PAT_TOKEN": "your-pat-token-here",
-        // 如果使用自簽憑證，取消註解下一行（僅限開發環境）
-        // "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0" // 使用自簽憑證
       }
     }
   }
 }
 ```
+
+**環境變數說明：**
+- `ADO_SERVER_URL`：必填，完整的集合路徑（例如：`https://tfs.company.com/DefaultCollection`）
+- `ADO_PAT_TOKEN`：必填，個人存取權杖
+- `NODE_TLS_REJECT_UNAUTHORIZED`：必填，設為 `"0"` 以支援自簽憑證（地端部署環境常見）
+
+> **⚠️ 安全提示**：`NODE_TLS_REJECT_UNAUTHORIZED=0` 會略過 SSL 憑證驗證，僅適用於內部網路的地端部署環境。請勿在公開網路環境使用。
 
 ### 產生個人存取權杖 (PAT)
 
@@ -44,6 +37,12 @@ pnpm run build
    - **程式碼**：讀取與寫入（用於 Pull Request 操作）
    - **工作項目**：讀取與寫入（用於工作項目操作）
    - **專案與小組**：讀取（用於專案資訊）
+
+## 系統需求
+
+- Node.js >= 20.0.0
+- Azure DevOps Server 2022（地端部署版本）
+- 有效的個人存取權杖 (PAT)
 
 ## 可用工具
 
@@ -70,10 +69,10 @@ pnpm run build
 - `mcp_ado_repos_get_pull_request` - 取得 PR 詳細資訊
 - `mcp_ado_repos_create_pull_request` - 建立 Pull Request
 - `mcp_ado_repos_update_pull_request` - 更新 Pull Request
-- `mcp_ado_repos_get_pr_threads` - 取得 PR 審查討論串
-- `mcp_ado_repos_create_pr_thread` - 建立 PR 審查討論串
 
 **總計：15 個工具**
+
+完整的工具定義和參數說明，請參閱原始碼中的 `src/tools/` 目錄。
 
 ## 使用範例
 
@@ -127,3 +126,70 @@ pnpm run build
 2. "建立一個 Task：設計個人檔案 UI，並連結到上面的 User Story"
 3. "建立另一個 Task：實作個人檔案 API，也連結到同一個 User Story"
 4. "當完成時，更新所有相關工作項目的狀態為已完成"
+
+## 開發
+
+### 建置專案
+
+```bash
+pnpm install
+pnpm run build
+```
+
+### 監看模式
+
+```bash
+pnpm run watch
+```
+
+### 執行測試
+
+```bash
+pnpm test
+```
+
+### 執行 Linter
+
+```bash
+pnpm run lint
+```
+
+## 專案架構
+
+```
+src/
+├── index.ts             # CLI 入口點
+├── auth.ts              # PAT 認證
+├── server.ts            # MCP 伺服器設定
+├── tools.ts             # 工具註冊
+├── tools/
+│   ├── core.ts          # 專案管理 (1 個工具)
+│   ├── work-items.ts    # 工作項目 (10 個工具)
+│   └── repositories.ts  # Pull Requests (4 個工具)
+├── utils.ts             # 回應輔助函式
+├── logger.ts            # Winston 日誌
+└── version.ts           # 版本資訊
+```
+
+## 特色功能
+
+- ✅ **地端部署專用**：專為 Azure DevOps Server 2022 設計
+- ✅ **集合式 URL**：支援 `https://{server}/{collection}` 格式
+- ✅ **PAT 認證**：僅使用個人存取權杖，無需 Azure CLI
+- ✅ **輕量化**：最少依賴，架構簡潔
+- ✅ **完整功能**：涵蓋工作項目和 Pull Request 的核心操作
+
+## 授權
+
+MIT License
+
+## 貢獻
+
+歡迎提交 Issue 和 Pull Request！
+
+專案倉庫：[https://github.com/Wootz/ado-onprem-mcp](https://github.com/Wootz/ado-onprem-mcp)
+
+## 支援
+
+如有問題或建議，請在 GitHub 上提交 Issue：
+[https://github.com/Wootz/ado-onprem-mcp/issues](https://github.com/Wootz/ado-onprem-mcp/issues)

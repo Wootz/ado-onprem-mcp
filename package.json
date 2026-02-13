@@ -1,5 +1,5 @@
 {
-  "name": "ado-onprem-mcp",
+  "name": "@wootz/ado-onprem-mcp",
   "version": "1.0.0",
   "description": "MCP server for Azure DevOps Server 2022 (on-premises)",
   "type": "module",
