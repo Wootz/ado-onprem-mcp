@@ -187,6 +187,7 @@ Field paths use `/fields/System.FieldName` format.
 
 **Optional**:
 - `NODE_TLS_REJECT_UNAUTHORIZED=0`: For self-signed certs (dev only)
+- `LOG_LEVEL`: Logging level (`error`, `warn`, `info`, `debug`; default: `info`)
 
 ## Removed Features
 
