@@ -1,0 +1,53 @@
+# Source files
+src/
+*.ts
+tsconfig.json
+
+# Tests
+__tests__/
+jest.config.js
+
+# Development
+.env
+.env.example
+.env.*
+
+# Git
+.git/
+.gitignore
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+
+# Dependencies
+node_modules/
+
+# Build artifacts (keep dist for distribution)
+coverage/
+
+# Documentation
+CLAUDE.md
+
+# Linting
+.eslintrc*
+eslint.config.js
+
+# CI/CD
+.github/
+
+# Lock files (keep pnpm-lock.yaml for reproducibility)
+# pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Misc
+.DS_Store
+*.pem

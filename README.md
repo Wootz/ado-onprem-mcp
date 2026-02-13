@@ -23,7 +23,7 @@ pnpm run build
     "azure-devops-onprem": {
       "command": "node",
       "args": [
-        "/absolute/path/to/azure-devops-on-premises-mcp/dist/index.js"
+        "/absolute/path/to/ado-onprem-mcp/dist/index.js"
       ],
       "env": {
         "ADO_SERVER_URL": "https://tfs.company.com/DefaultCollection",

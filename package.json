@@ -1,11 +1,11 @@
 {
-  "name": "azure-devops-on-premises-mcp",
+  "name": "ado-onprem-mcp",
   "version": "1.0.0",
   "description": "MCP server for Azure DevOps Server 2022 (on-premises)",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "azure-devops-on-premises-mcp": "dist/index.js"
+    "ado-onprem-mcp": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -23,6 +23,19 @@
   ],
   "author": "",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wootz/ado-onprem-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Wootz/ado-onprem-mcp/issues"
+  },
+  "homepage": "https://github.com/Wootz/ado-onprem-mcp#readme",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0",
     "azure-devops-node-api": "^15.1.2",
