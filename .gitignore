@@ -4,7 +4,7 @@ package-lock.json
 yarn.lock
 
 # pnpm
-pnpm-lock.yaml
+# pnpm-lock.yaml  # Keep lock file for reproducible builds in npm packages
 .pnpm-debug.log
 
 # Build output
