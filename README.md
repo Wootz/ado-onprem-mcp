@@ -1,5 +1,7 @@
 # Azure DevOps 地端部署 MCP 伺服器
 
+[![npm version](https://img.shields.io/npm/v/@wootz/ado-onprem-mcp)](https://www.npmjs.com/package/@wootz/ado-onprem-mcp)
+
 適用於 **Azure DevOps Server 2022（地端部署）** 的 Model Context Protocol (MCP) 伺服器。讓 AI 助手能夠透過 15 個工具與你的地端 Azure DevOps Server 互動。
 
 ## 設定
