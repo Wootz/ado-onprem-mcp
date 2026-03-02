@@ -184,14 +184,3 @@ src/
 ## 授權
 
 MIT License
-
-## 貢獻
-
-歡迎提交 Issue 和 Pull Request！
-
-專案倉庫：[https://github.com/Wootz/ado-onprem-mcp](https://github.com/Wootz/ado-onprem-mcp)
-
-## 支援
-
-如有問題或建議，請在 GitHub 上提交 Issue：
-[https://github.com/Wootz/ado-onprem-mcp/issues](https://github.com/Wootz/ado-onprem-mcp/issues)
