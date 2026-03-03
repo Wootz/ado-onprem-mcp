@@ -5,9 +5,11 @@ import { logger } from './logger.js';
 import { TOOL_DEFINITIONS as CORE_TOOLS, handleToolCall as handleCoreToolCall } from './tools/core.js';
 import { TOOL_DEFINITIONS as WORK_ITEMS_TOOLS, handleToolCall as handleWorkItemsToolCall } from './tools/work-items.js';
 import { TOOL_DEFINITIONS as REPOSITORIES_TOOLS, handleToolCall as handleRepositoriesToolCall } from './tools/repositories.js';
+import { TOOL_DEFINITIONS as BUILDS_TOOLS, handleToolCall as handleBuildsToolCall } from './tools/builds.js';
+import { TOOL_DEFINITIONS as WORK_TOOLS, handleToolCall as handleWorkToolCall } from './tools/work.js';
 
-const ALL_TOOLS = [...CORE_TOOLS, ...WORK_ITEMS_TOOLS, ...REPOSITORIES_TOOLS];
-const TOOL_HANDLERS = [handleCoreToolCall, handleWorkItemsToolCall, handleRepositoriesToolCall];
+const ALL_TOOLS = [...CORE_TOOLS, ...WORK_ITEMS_TOOLS, ...REPOSITORIES_TOOLS, ...BUILDS_TOOLS, ...WORK_TOOLS];
+const TOOL_HANDLERS = [handleCoreToolCall, handleWorkItemsToolCall, handleRepositoriesToolCall, handleBuildsToolCall, handleWorkToolCall];
 
 export async function configureAllTools(
   server: McpServer,

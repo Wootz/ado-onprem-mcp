@@ -70,6 +70,44 @@ export const TOOL_DEFINITIONS = [
       status: z.enum(['active', 'fixed', 'wontFix', 'closed', 'byDesign', 'pending']).optional().describe('Thread status'),
     }),
   },
+  {
+    name: 'mcp_ado_repos_list_repositories',
+    description: 'List all Git repositories in a project',
+    inputSchema: z.object({
+      project: z.string().describe('Project name or ID'),
+    }),
+  },
+  {
+    name: 'mcp_ado_repos_list_branches',
+    description: 'List branches in a Git repository',
+    inputSchema: z.object({
+      repositoryId: z.string().describe('Repository ID or name'),
+      project: z.string().describe('Project name or ID'),
+      filter: z.string().optional().describe('Branch name prefix filter'),
+    }),
+  },
+  {
+    name: 'mcp_ado_repos_get_item',
+    description: 'Get file or folder content from a Git repository (text files only)',
+    inputSchema: z.object({
+      repositoryId: z.string().describe('Repository ID or name'),
+      path: z.string().describe('Absolute file path (e.g., /src/app.ts)'),
+      project: z.string().describe('Project name or ID'),
+      branch: z.string().optional().describe('Branch name (defaults to repository default branch)'),
+    }),
+  },
+  {
+    name: 'mcp_ado_repos_get_commits',
+    description: 'Get commit history for a repository or a specific file/branch',
+    inputSchema: z.object({
+      repositoryId: z.string().describe('Repository ID or name'),
+      project: z.string().describe('Project name or ID'),
+      branch: z.string().optional().describe('Branch name filter'),
+      itemPath: z.string().optional().describe('File path filter (only commits touching this file)'),
+      author: z.string().optional().describe('Author display name filter'),
+      top: z.number().optional().describe('Maximum number of commits to return'),
+    }),
+  },
 ];
 
 export async function handleToolCall(
@@ -183,6 +221,71 @@ export async function handleToolCall(
 
       const createdThread = await gitApi.createThread(thread, repositoryId, pullRequestId, project);
       return createSuccessResponse(createdThread);
+    }
+
+    case 'mcp_ado_repos_list_repositories': {
+      logger.info('Executing mcp_ado_repos_list_repositories', args);
+      const { project } = args as { project: string };
+      const repos = await gitApi.getRepositories(project);
+      return createSuccessResponse(repos);
+    }
+
+    case 'mcp_ado_repos_list_branches': {
+      logger.info('Executing mcp_ado_repos_list_branches', args);
+      const { repositoryId, project, filter } = args as {
+        repositoryId: string;
+        project: string;
+        filter?: string;
+      };
+      // getRefs with filter "heads/" returns all branches; append optional name prefix
+      const refFilter = filter ? `heads/${filter}` : 'heads/';
+      const refs = await gitApi.getRefs(repositoryId, project, refFilter);
+      return createSuccessResponse(refs);
+    }
+
+    case 'mcp_ado_repos_get_item': {
+      logger.info('Executing mcp_ado_repos_get_item', args);
+      const { repositoryId, path, project, branch } = args as {
+        repositoryId: string;
+        path: string;
+        project: string;
+        branch?: string;
+      };
+      const versionDescriptor = branch
+        ? { version: branch, versionType: 0 as any } // 0 = branch
+        : undefined;
+      const item = await gitApi.getItem(
+        repositoryId,
+        path,
+        project,
+        undefined, // scopePath
+        undefined, // recursionLevel
+        undefined, // includeContentMetadata
+        undefined, // latestProcessedChange
+        undefined, // download
+        versionDescriptor,
+        true  // includeContent
+      );
+      return createSuccessResponse(item);
+    }
+
+    case 'mcp_ado_repos_get_commits': {
+      logger.info('Executing mcp_ado_repos_get_commits', args);
+      const { repositoryId, project, branch, itemPath, author, top } = args as {
+        repositoryId: string;
+        project: string;
+        branch?: string;
+        itemPath?: string;
+        author?: string;
+        top?: number;
+      };
+      const searchCriteria: any = {
+        itemPath,
+        author,
+        itemVersion: branch ? { version: branch, versionType: 0 } : undefined,
+      };
+      const commits = await gitApi.getCommits(repositoryId, searchCriteria, project, undefined, top);
+      return createSuccessResponse(commits);
     }
 
     default:
