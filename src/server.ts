@@ -7,10 +7,11 @@ import { configureAllTools } from './tools.js';
 
 export interface ServerOptions {
   connection: azdev.WebApi;
+  defaultProject?: string;
 }
 
 export async function createServer(options: ServerOptions): Promise<McpServer> {
-  const { connection } = options;
+  const { connection, defaultProject } = options;
 
   const server = new McpServer(
     {
@@ -24,7 +25,7 @@ export async function createServer(options: ServerOptions): Promise<McpServer> {
     }
   );
 
-  await configureAllTools(server, async () => connection);
+  await configureAllTools(server, async () => connection, defaultProject);
 
   return server;
 }

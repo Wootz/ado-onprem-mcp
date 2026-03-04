@@ -17,6 +17,7 @@
       "env": {
         "ADO_SERVER_URL": "https://tfs.company.com/DefaultCollection",
         "ADO_PAT_TOKEN": "your-pat-token-here",
+        "ADO_PROJECT": "MyProject", // 可選，設定後所有工具預設操作此專案
         "NODE_TLS_REJECT_UNAUTHORIZED": "0" // 使用自簽憑證
       }
     }
@@ -27,6 +28,7 @@
 **環境變數說明：**
 - `ADO_SERVER_URL`：必填，完整的集合路徑（例如：`https://tfs.company.com/DefaultCollection`）
 - `ADO_PAT_TOKEN`：必填，個人存取權杖
+- `ADO_PROJECT`：選填，預設專案名稱。設定後，所有工具在未指定 `project` 參數時，自動使用此專案
 - `NODE_TLS_REJECT_UNAUTHORIZED`：必填，設為 `"0"` 以支援自簽憑證（地端部署環境常見）
 
 > **⚠️ 安全提示**：`NODE_TLS_REJECT_UNAUTHORIZED=0` 會略過 SSL 憑證驗證，僅適用於內部網路的地端部署環境。請勿在公開網路環境使用。

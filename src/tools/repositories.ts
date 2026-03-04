@@ -9,7 +9,7 @@ export const TOOL_DEFINITIONS = [
     description: 'List pull requests in a repository',
     inputSchema: z.object({
       repositoryId: z.string().describe('Repository ID or name'),
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       status: z.enum(['active', 'abandoned', 'completed', 'all']).optional().describe('PR status filter'),
       creatorId: z.string().optional().describe('Creator user ID'),
       reviewerId: z.string().optional().describe('Reviewer user ID'),
@@ -22,7 +22,7 @@ export const TOOL_DEFINITIONS = [
     inputSchema: z.object({
       pullRequestId: z.number().describe('Pull request ID'),
       repositoryId: z.string().describe('Repository ID or name'),
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
     }),
   },
   {
@@ -30,7 +30,7 @@ export const TOOL_DEFINITIONS = [
     description: 'Create a new pull request',
     inputSchema: z.object({
       repositoryId: z.string().describe('Repository ID or name'),
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       sourceBranch: z.string().describe('Source branch name'),
       targetBranch: z.string().describe('Target branch name'),
       title: z.string().describe('PR title'),
@@ -44,7 +44,7 @@ export const TOOL_DEFINITIONS = [
     inputSchema: z.object({
       pullRequestId: z.number().describe('Pull request ID'),
       repositoryId: z.string().describe('Repository ID or name'),
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       status: z.enum(['active', 'abandoned', 'completed']).optional().describe('PR status'),
       title: z.string().optional().describe('PR title'),
       description: z.string().optional().describe('PR description'),
@@ -56,7 +56,7 @@ export const TOOL_DEFINITIONS = [
     inputSchema: z.object({
       pullRequestId: z.number().describe('Pull request ID'),
       repositoryId: z.string().describe('Repository ID or name'),
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
     }),
   },
   {
@@ -65,7 +65,7 @@ export const TOOL_DEFINITIONS = [
     inputSchema: z.object({
       pullRequestId: z.number().describe('Pull request ID'),
       repositoryId: z.string().describe('Repository ID or name'),
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       content: z.string().describe('Comment content'),
       status: z.enum(['active', 'fixed', 'wontFix', 'closed', 'byDesign', 'pending']).optional().describe('Thread status'),
     }),
@@ -74,7 +74,7 @@ export const TOOL_DEFINITIONS = [
     name: 'mcp_ado_repos_list_repositories',
     description: 'List all Git repositories in a project',
     inputSchema: z.object({
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
     }),
   },
   {
@@ -82,7 +82,7 @@ export const TOOL_DEFINITIONS = [
     description: 'List branches in a Git repository',
     inputSchema: z.object({
       repositoryId: z.string().describe('Repository ID or name'),
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       filter: z.string().optional().describe('Branch name prefix filter'),
     }),
   },
@@ -92,7 +92,7 @@ export const TOOL_DEFINITIONS = [
     inputSchema: z.object({
       repositoryId: z.string().describe('Repository ID or name'),
       path: z.string().describe('Absolute file path (e.g., /src/app.ts)'),
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       branch: z.string().optional().describe('Branch name (defaults to repository default branch)'),
     }),
   },
@@ -101,7 +101,7 @@ export const TOOL_DEFINITIONS = [
     description: 'Get commit history for a repository or a specific file/branch',
     inputSchema: z.object({
       repositoryId: z.string().describe('Repository ID or name'),
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       branch: z.string().optional().describe('Branch name filter'),
       itemPath: z.string().optional().describe('File path filter (only commits touching this file)'),
       author: z.string().optional().describe('Author display name filter'),

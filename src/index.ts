@@ -36,6 +36,11 @@ async function main() {
     process.exit(1);
   }
 
+  const defaultProject = process.env.ADO_PROJECT;
+  if (defaultProject) {
+    logger.info('Default project configured', { defaultProject });
+  }
+
   logger.info('Starting Azure DevOps On-Premises MCP Server', {
     serverUrl,
   });
@@ -43,7 +48,7 @@ async function main() {
   try {
     const token = getTokenFromEnv();
     const connection = await createConnection(serverUrl, token);
-    const server = await createServer({ connection });
+    const server = await createServer({ connection, defaultProject });
     await startServer(server);
   } catch (error) {
     logger.error('Failed to start server', { error });

@@ -28,7 +28,7 @@ export const TOOL_DEFINITIONS = [
     name: 'mcp_ado_builds_list_definitions',
     description: 'List build definitions (pipelines) for a project',
     inputSchema: z.object({
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       name: z.string().optional().describe('Filter by definition name (supports wildcards)'),
       top: z.number().optional().describe('Maximum number of definitions to return'),
     }),
@@ -37,7 +37,7 @@ export const TOOL_DEFINITIONS = [
     name: 'mcp_ado_builds_list',
     description: 'List builds for a project with optional filters',
     inputSchema: z.object({
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       definitionId: z.number().optional().describe('Build definition ID filter'),
       statusFilter: z
         .enum(['none', 'inProgress', 'completed', 'cancelling', 'postponed', 'notStarted', 'all'])
@@ -55,7 +55,7 @@ export const TOOL_DEFINITIONS = [
     name: 'mcp_ado_builds_get',
     description: 'Get details of a specific build by ID',
     inputSchema: z.object({
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       buildId: z.number().describe('Build ID'),
     }),
   },
@@ -63,7 +63,7 @@ export const TOOL_DEFINITIONS = [
     name: 'mcp_ado_builds_queue',
     description: 'Queue (trigger) a new build for a definition',
     inputSchema: z.object({
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       definitionId: z.number().describe('Build definition ID'),
       sourceBranch: z
         .string()
@@ -80,7 +80,7 @@ export const TOOL_DEFINITIONS = [
     description:
       'Get log list for a build, or specific log lines when logId is provided',
     inputSchema: z.object({
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       buildId: z.number().describe('Build ID'),
       logId: z
         .number()

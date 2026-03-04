@@ -8,7 +8,7 @@ export const TOOL_DEFINITIONS = [
     name: 'mcp_ado_work_list_iterations',
     description: 'List iterations (sprints) for a team',
     inputSchema: z.object({
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       team: z.string().optional().describe('Team name (defaults to project default team)'),
       timeframe: z
         .enum(['past', 'current', 'future'])
@@ -20,7 +20,7 @@ export const TOOL_DEFINITIONS = [
     name: 'mcp_ado_work_get_iteration_work_items',
     description: 'Get work items assigned to a specific iteration (sprint)',
     inputSchema: z.object({
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       team: z.string().optional().describe('Team name (defaults to project default team)'),
       iterationId: z.string().describe('Iteration ID (GUID) from mcp_ado_work_list_iterations'),
     }),
@@ -29,7 +29,7 @@ export const TOOL_DEFINITIONS = [
     name: 'mcp_ado_work_list_backlogs',
     description: 'List backlog levels configured for a team (e.g., Epics, Features, Stories)',
     inputSchema: z.object({
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       team: z.string().optional().describe('Team name (defaults to project default team)'),
     }),
   },

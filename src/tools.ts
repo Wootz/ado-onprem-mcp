@@ -13,9 +13,10 @@ const TOOL_HANDLERS = [handleCoreToolCall, handleWorkItemsToolCall, handleReposi
 
 export async function configureAllTools(
   server: McpServer,
-  connectionProvider: () => Promise<azdev.WebApi>
+  connectionProvider: () => Promise<azdev.WebApi>,
+  defaultProject?: string
 ) {
-  logger.info('Configuring tools', { count: ALL_TOOLS.length });
+  logger.info('Configuring tools', { count: ALL_TOOLS.length, defaultProject });
 
   for (const toolDef of ALL_TOOLS) {
     server.registerTool(
@@ -23,8 +24,14 @@ export async function configureAllTools(
       { description: toolDef.description, inputSchema: toolDef.inputSchema },
       async (args: any) => {
         try {
+          if (defaultProject && args.project) {
+            return createErrorResponse(new Error(`ADO_PROJECT 已設定為 "${defaultProject}"，不允許再指定其他專案`));
+          }
+          const enrichedArgs = defaultProject
+            ? { ...args, project: defaultProject }
+            : args;
           for (const handler of TOOL_HANDLERS) {
-            const result = await handler(toolDef.name, args, connectionProvider);
+            const result = await handler(toolDef.name, enrichedArgs, connectionProvider);
             if (result !== null) return result;
           }
           throw new Error(`Unknown tool: ${toolDef.name}`);

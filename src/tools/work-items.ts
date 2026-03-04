@@ -34,7 +34,7 @@ export const TOOL_DEFINITIONS = [
     name: 'mcp_ado_work_items_create',
     description: 'Create a new work item',
     inputSchema: z.object({
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       type: z.string().describe('Work item type (e.g., Bug, Task, User Story)'),
       title: z.string().describe('Work item title'),
       description: z.string().optional().describe('Work item description'),
@@ -64,7 +64,7 @@ export const TOOL_DEFINITIONS = [
     name: 'mcp_ado_work_items_query_by_wiql',
     description: 'Query work items using WIQL (Work Item Query Language)',
     inputSchema: z.object({
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       query: z.string().describe('WIQL query string'),
       top: z.number().optional().describe('Maximum number of results'),
     }),
@@ -73,7 +73,7 @@ export const TOOL_DEFINITIONS = [
     name: 'mcp_ado_work_items_add_comment',
     description: 'Add a comment to a work item',
     inputSchema: z.object({
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       workItemId: z.number().describe('Work item ID'),
       text: z.string().describe('Comment text'),
     }),
@@ -82,7 +82,7 @@ export const TOOL_DEFINITIONS = [
     name: 'mcp_ado_work_items_get_comments',
     description: 'Get comments for a work item',
     inputSchema: z.object({
-      project: z.string().describe('Project name or ID'),
+      project: z.string().optional().describe('Project name or ID (uses ADO_PROJECT env var if not specified)'),
       workItemId: z.number().describe('Work item ID'),
       top: z.number().optional().describe('Maximum number of comments'),
     }),
