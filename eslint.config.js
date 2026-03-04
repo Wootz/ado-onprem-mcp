@@ -4,12 +4,36 @@ import tsparser from '@typescript-eslint/parser';
 export default [
   {
     files: ['src/**/*.ts'],
+    ignores: ['src/**/*.test.ts', 'src/__tests__/**/*.ts'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
         ecmaVersion: 2022,
         sourceType: 'module',
         project: './tsconfig.json',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_' },
+      ],
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'warn',
+    },
+  },
+  {
+    files: ['src/**/*.test.ts', 'src/__tests__/**/*.ts'],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module',
+        project: './tsconfig.test.json',
       },
     },
     plugins: {
