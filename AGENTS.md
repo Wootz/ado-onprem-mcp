@@ -189,8 +189,8 @@ parameter instead, which emits a `/relations/-` patch:
 }
 ```
 
-Passing `System.Parent` inside `fields` now throws an explicit error rather than failing
-silently. Relation `url` must always be a full address; a bare ID is rejected by ADO.
+Passing `System.Parent` inside `fields` throws an explicit error.
+Relation `url` must always be a full address; a bare ID is rejected by ADO.
 
 ### WIQL Project Scoping
 
@@ -214,24 +214,16 @@ payload, or `fields: [...]` to select specific fields (cannot be combined with `
 
 ### Two TypeScript versions side by side
 
-TypeScript 7 is a native rewrite that no longer exposes the JavaScript compiler
-API that `ts-jest` and `typescript-eslint` depend on, and neither supports TS 7 yet
-(typescript-eslint tracking issue #10940). Both resolve the top-level `typescript`,
-so the two requirements cannot share one package name. Hence:
-
 | Package | Version | Used by |
 |---|---|---|
 | `typescript` | 6.0.3 | `ts-jest`, `typescript-eslint` (resolved implicitly) |
 | `typescript7` (alias of `typescript@7.0.2`) | 7.0.2 | `pnpm run build` / `watch` |
 
-`build` and `watch` therefore invoke `node node_modules/typescript7/bin/tsc`
-rather than a bare `tsc` — a bare `tsc` would silently compile with TS 6.
-
-Once `ts-jest` and `typescript-eslint` support TS 7, drop the `typescript7` alias,
-move `typescript` to 7.x, and restore the scripts to plain `tsc`.
+`build` and `watch` invoke `node node_modules/typescript7/bin/tsc`.
+**Do not run a bare `tsc`** — it silently compiles with TS 6 instead.
 
 Test type-checking uses `tsconfig.test.json` (wired in via `jest.config.js`),
-which declares `types: ["jest", "node"]`. TS 6 no longer auto-loads these.
+which must declare `types: ["jest", "node"]`.
 
 ## Environment Variables
 
@@ -243,25 +235,11 @@ which declares `types: ["jest", "node"]`. TS 6 no longer auto-loads these.
 - `NODE_TLS_REJECT_UNAUTHORIZED=0`: For self-signed certs (dev only)
 - `LOG_LEVEL`: Logging level (`error`, `warn`, `info`, `debug`; default: `info`)
 
-## Removed Features
+## Not Supported
 
-This server has been simplified by removing:
-
-**Domains**:
-- `pipelines`: Build/pipeline operations
-- `test-plans`: Test management
-- `work`: Iterations, capacity, boards
-- `wiki`: Wiki operations
-- `search`: Search functionality
-
-**MCP Features**:
-- Resources (previously `ado://{serverUrl}/projects`)
-- Prompts (previously `create-work-item`, `pr-summary`)
-
-**Code**:
-- `src/shared/types.ts`: Removed, types inlined
-- Domain filtering: All 3 domains always loaded
-- Unused tool files deleted
+- **MCP Resources and Prompts**: this server exposes tools only.
+- **Domains not covered**: test plans, wiki, search.
+- Some Azure DevOps cloud-only features are unavailable on-premises.
 
 ## Adding New Tools
 
