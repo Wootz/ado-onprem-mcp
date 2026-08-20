@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@wootz/ado-onprem-mcp)](https://www.npmjs.com/package/@wootz/ado-onprem-mcp)
 
-適用於 **Azure DevOps Server 2022（地端部署）** 的 Model Context Protocol (MCP) 伺服器。讓 AI 助手能夠透過 29 個工具與你的地端 Azure DevOps Server 互動。
+適用於 **Azure DevOps Server 2022（地端部署）** 的 Model Context Protocol (MCP) 伺服器。讓 AI 助手能夠透過 30 個工具與你的地端 Azure DevOps Server 互動。
 
 ## 設定
 
@@ -28,7 +28,9 @@
 **環境變數說明：**
 - `ADO_SERVER_URL`：必填，完整的集合路徑（例如：`https://tfs.company.com/DefaultCollection`）
 - `ADO_PAT_TOKEN`：必填，個人存取權杖
-- `ADO_PROJECT`：選填，預設專案名稱。設定後，所有工具在未指定 `project` 參數時，自動使用此專案
+- `ADO_PROJECT`：選填，預設專案名稱。設定後，所有工具在未指定 `project` 參數時自動使用此專案；
+  明確帶入相同專案名稱可正常執行，帶入其他專案則會被擋下。
+  WIQL 查詢若未含 `[System.TeamProject]` 條件，會自動注入此條件，避免查到跨專案資料
 - `NODE_TLS_REJECT_UNAUTHORIZED`：必填，設為 `"0"` 以支援自簽憑證（地端部署環境常見）
 
 > **⚠️ 安全提示**：`NODE_TLS_REJECT_UNAUTHORIZED=0` 會略過 SSL 憑證驗證，僅適用於內部網路的地端部署環境。請勿在公開網路環境使用。
@@ -55,7 +57,7 @@
 
 - `mcp_ado_core_list_projects` - 列出所有專案
 
-### Work Items（10 個工具）
+### Work Items（11 個工具）
 
 - `mcp_ado_work_items_get` - 取得工作項目詳細資訊
 - `mcp_ado_work_items_create` - 建立新的工作項目
@@ -67,6 +69,7 @@
 - `mcp_ado_work_items_add_link` - 新增工作項目連結
 - `mcp_ado_work_items_get_updates` - 取得修訂歷史
 - `mcp_ado_work_items_batch_get` - 批次取得工作項目
+- `mcp_ado_work_items_batch_create` - 批次建立工作項目（支援同批次父子階層）
 
 ### Repositories（10 個工具）
 
@@ -100,7 +103,7 @@
 - `mcp_ado_work_get_iteration_work_items` - 取得指定 Sprint 內的所有工作項目
 - `mcp_ado_work_list_backlogs` - 列出 Backlog 層級（Epics / Features / Stories）
 
-**總計：29 個工具**
+**總計：30 個工具**
 
 完整的工具定義和參數說明，請參閱原始碼中的 `src/tools/` 目錄。
 
@@ -123,10 +126,13 @@
 - "更新工作項目 #5678，將狀態改為已完成"
 - "將工作項目 #1234 的優先順序設為 1"
 - "對工作項目 #1234 新增註解：已確認重現問題"
+- "建立一個 Task，標題為「補單元測試」，父項為 #5787"
+- "一次建立一個 Feature 和它底下的 3 個 Task"
 
 ### 管理工作項目關聯
 
 - "將工作項目 #100 連結到 #200，類型為 Related"
+- "把工作項目 #6320 掛到 #5787 底下"
 - "顯示工作項目 #1234 的所有註解"
 - "查看工作項目 #5678 的修改歷史"
 - "列出工作項目 #999 的所有關聯項目"
@@ -211,7 +217,7 @@ src/
 ├── tools.ts             # 工具註冊
 ├── tools/
 │   ├── core.ts          # 專案管理 (1 個工具)
-│   ├── work-items.ts    # 工作項目 (10 個工具)
+│   ├── work-items.ts    # 工作項目 (11 個工具)
 │   ├── repositories.ts  # Git 與 Pull Requests (10 個工具)
 │   ├── builds.ts        # Build / Pipeline (5 個工具)
 │   └── work.ts          # Sprint / Backlog (3 個工具)
@@ -227,6 +233,8 @@ src/
 - ✅ **PAT 認證**：僅使用個人存取權杖，無需 Azure CLI
 - ✅ **輕量化**：最少依賴，架構簡潔
 - ✅ **完整功能**：涵蓋工作項目、Pull Request、Git、Build Pipeline 與 Sprint 規劃
+- ✅ **階層與批次**：支援父子關聯，可一次建立整棵工作項目樹
+- ✅ **精簡回應**：自動裁剪冗長的 identity 物件，可用 `fields` 指定所需欄位
 
 ## 授權
 

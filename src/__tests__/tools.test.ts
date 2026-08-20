@@ -112,11 +112,16 @@ describe('configureAllTools - ADO_PROJECT 專案限制', () => {
       expect(mockWorkItemsHandler).not.toHaveBeenCalled();
     });
 
-    test('呼叫時帶 project 與 ADO_PROJECT 相同，也應回傳錯誤', async () => {
+    test('呼叫時帶 project 與 ADO_PROJECT 相同，應放行', async () => {
+      mockWorkItemsHandler.mockResolvedValue(SUCCESS_RESPONSE);
       const handler = registeredHandlers.get('mcp_ado_work_items_create')!;
       const result = await handler({ project: 'MyProject', type: 'Bug', title: 'Test' });
-      expect(result.isError).toBe(true);
-      expect(mockWorkItemsHandler).not.toHaveBeenCalled();
+      expect(result.isError).toBeUndefined();
+      expect(mockWorkItemsHandler).toHaveBeenCalledWith(
+        'mcp_ado_work_items_create',
+        { project: 'MyProject', type: 'Bug', title: 'Test' },
+        mockConnectionProvider
+      );
     });
   });
 });

@@ -24,8 +24,10 @@ export async function configureAllTools(
       { description: toolDef.description, inputSchema: toolDef.inputSchema },
       async (args: any) => {
         try {
-          if (defaultProject && args.project) {
-            return createErrorResponse(new Error(`ADO_PROJECT 已設定為 "${defaultProject}"，不允許再指定其他專案`));
+          if (defaultProject && args.project && args.project !== defaultProject) {
+            return createErrorResponse(
+              new Error(`ADO_PROJECT 已鎖定為 "${defaultProject}"，不允許操作專案 "${args.project}"`)
+            );
           }
           const enrichedArgs = defaultProject
             ? { ...args, project: defaultProject }

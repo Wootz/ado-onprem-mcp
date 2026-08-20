@@ -1,4 +1,4 @@
-import { createSuccessResponse, createErrorResponse } from '../utils.js';
+import { createSuccessResponse, createErrorResponse, trimIdentities, createWorkItemResponse } from '../utils.js';
 
 describe('createSuccessResponse', () => {
   test('回傳含 JSON 字串的 content 陣列', () => {
@@ -39,5 +39,77 @@ describe('createErrorResponse', () => {
     const result = createErrorResponse(42);
     const parsed = JSON.parse(result.content[0].text);
     expect(parsed.error).toBe('42');
+  });
+});
+
+
+describe('trimIdentities（issue #5）', () => {
+  const identity = {
+    displayName: '陳小明',
+    uniqueName: 'ming@company.com',
+    id: 'abc-123',
+    imageUrl: 'https://tfs/_api/_common/identityImage?id=abc-123',
+    descriptor: 'win.abc',
+    _links: { avatar: { href: 'https://tfs/avatar' } },
+  };
+
+  test('identity 物件只保留 displayName 與 uniqueName', () => {
+    expect(trimIdentities(identity)).toEqual({
+      displayName: '陳小明',
+      uniqueName: 'ming@company.com',
+    });
+  });
+
+  test('巢狀於 fields 內的 identity 也會被裁剪', () => {
+    const workItem = {
+      id: 6320,
+      rev: 3,
+      fields: {
+        'System.Title': '標題',
+        'System.CreatedBy': identity,
+        'System.ChangedBy': identity,
+      },
+    };
+    const result = trimIdentities(workItem) as any;
+    expect(result.id).toBe(6320);
+    expect(result.fields['System.Title']).toBe('標題');
+    expect(result.fields['System.CreatedBy']).toEqual({
+      displayName: '陳小明',
+      uniqueName: 'ming@company.com',
+    });
+  });
+
+  test('陣列內的 identity 會被裁剪', () => {
+    const result = trimIdentities([{ fields: { 'System.CreatedBy': identity } }]) as any;
+    expect(result[0].fields['System.CreatedBy'].imageUrl).toBeUndefined();
+  });
+
+  test('不會誤裁只有 id 與 displayName 的一般物件', () => {
+    const notIdentity = { id: 5, displayName: '一般物件', other: true };
+    expect(trimIdentities(notIdentity)).toEqual(notIdentity);
+  });
+
+  test('保留 null 與純量', () => {
+    expect(trimIdentities({ a: null, b: 1, c: 'x' })).toEqual({ a: null, b: 1, c: 'x' });
+  });
+
+  test('明顯縮短回應長度', () => {
+    const before = JSON.stringify({ fields: { 'System.CreatedBy': identity } }).length;
+    const after = JSON.stringify(trimIdentities({ fields: { 'System.CreatedBy': identity } })).length;
+    expect(after).toBeLessThan(before / 2);
+  });
+});
+
+describe('createWorkItemResponse', () => {
+  const withIdentity = { fields: { 'System.CreatedBy': { displayName: 'A', uniqueName: 'a@b.c', imageUrl: 'x' } } };
+
+  test('預設裁剪 identity', () => {
+    const parsed = JSON.parse(createWorkItemResponse(withIdentity).content[0].text);
+    expect(parsed.fields['System.CreatedBy'].imageUrl).toBeUndefined();
+  });
+
+  test('raw:true 保留完整內容', () => {
+    const parsed = JSON.parse(createWorkItemResponse(withIdentity, true).content[0].text);
+    expect(parsed.fields['System.CreatedBy'].imageUrl).toBe('x');
   });
 });
