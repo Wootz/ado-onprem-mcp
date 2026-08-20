@@ -214,13 +214,23 @@ payload, or `fields: [...]` to select specific fields (cannot be combined with `
 
 ### Two TypeScript versions side by side
 
-| Package | Version | Used by |
-|---|---|---|
-| `typescript` | 6.0.3 | `ts-jest`, `typescript-eslint` (resolved implicitly) |
-| `typescript7` (alias of `typescript@7.0.2`) | 7.0.2 | `pnpm run build` / `watch` |
+TypeScript 7.0 ships no programmatic API (it lands in 7.1), so `ts-jest` and
+`typescript-eslint` cannot run against it. This is Microsoft's official
+side-by-side setup:
 
-`build` and `watch` invoke `node node_modules/typescript7/bin/tsc`.
-**Do not run a bare `tsc`** — it silently compiles with TS 6 instead.
+```json
+"@typescript/native": "npm:typescript@^7.0.2",
+"typescript": "npm:@typescript/typescript6@^6.0.2"
+```
+
+| Binary | Version | Used by |
+|---|---|---|
+| `tsc` | 7.0.2 | `pnpm run build` / `watch` |
+| `tsc6` | 6.0.3 | available if a TS 6 compile is ever needed |
+
+`typescript` resolves to the `@typescript/typescript6` compatibility package,
+which is what `ts-jest` and `typescript-eslint` pick up. Nothing extra to
+remember — plain `tsc` is TypeScript 7.
 
 Test type-checking uses `tsconfig.test.json` (wired in via `jest.config.js`),
 which must declare `types: ["jest", "node"]`.
