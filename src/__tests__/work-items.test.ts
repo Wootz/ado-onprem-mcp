@@ -2,7 +2,7 @@ jest.mock('../logger.js', () => ({
   logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() },
 }));
 
-import { handleToolCall } from '../tools/work-items.js';
+import { handleToolCall, injectProjectFilter } from '../tools/work-items.js';
 
 const mockWitApi = {
   getWorkItem: jest.fn(),
@@ -403,5 +403,61 @@ describe('batch_create（issue #7）', () => {
         items: [],
       }, connectionProvider)
     ).rejects.toThrow(/不可為空/);
+  });
+});
+
+describe('injectProjectFilter', () => {
+  const P = 'MyProject';
+  const CLAUSE = "[System.TeamProject] = 'MyProject'";
+
+  it('WHERE 與 ORDER BY 並存時，ORDER BY 不可被包進條件括號', () => {
+    const out = injectProjectFilter(
+      'SELECT [System.Id] FROM WorkItems WHERE [System.Id] >= 10 ORDER BY [System.Id]', P);
+    expect(out).toBe(
+      `SELECT [System.Id] FROM WorkItems WHERE ${CLAUSE} AND ([System.Id] >= 10) ORDER BY [System.Id]`);
+    expect(out).not.toMatch(/\(.*ORDER\s+BY.*\)/i);
+  });
+
+  it('WHERE 與 ASOF 並存時，ASOF 不可被包進條件括號', () => {
+    const out = injectProjectFilter(
+      "SELECT [System.Id] FROM WorkItems WHERE [System.State] = 'New' ASOF '2026-01-01'", P);
+    expect(out).toBe(
+      `SELECT [System.Id] FROM WorkItems WHERE ${CLAUSE} AND ([System.State] = 'New') ASOF '2026-01-01'`);
+  });
+
+  it('僅有 WHERE 時包住原條件', () => {
+    expect(injectProjectFilter('SELECT [System.Id] FROM WorkItems WHERE [System.Id] >= 10', P))
+      .toBe(`SELECT [System.Id] FROM WorkItems WHERE ${CLAUSE} AND ([System.Id] >= 10)`);
+  });
+
+  it('無 WHERE 但有 ORDER BY 時插在其前', () => {
+    expect(injectProjectFilter('SELECT [System.Id] FROM WorkItems ORDER BY [System.Id]', P))
+      .toBe(`SELECT [System.Id] FROM WorkItems WHERE ${CLAUSE} ORDER BY [System.Id]`);
+  });
+
+  it('無 WHERE 也無尾句時接在最後', () => {
+    expect(injectProjectFilter('SELECT [System.Id] FROM WorkItems', P))
+      .toBe(`SELECT [System.Id] FROM WorkItems WHERE ${CLAUSE}`);
+  });
+
+  it('已含 System.TeamProject 時不重複注入', () => {
+    const q = "SELECT [System.Id] FROM WorkItems WHERE [System.TeamProject] = 'Other' ORDER BY [System.Id]";
+    expect(injectProjectFilter(q, P)).toBe(q);
+  });
+
+  it('未設定 project 時原樣返回', () => {
+    const q = 'SELECT [System.Id] FROM WorkItems WHERE [System.Id] >= 10 ORDER BY [System.Id]';
+    expect(injectProjectFilter(q, undefined)).toBe(q);
+  });
+
+  it('小寫關鍵字同樣正確處理', () => {
+    expect(injectProjectFilter(
+      'select [System.Id] from WorkItems where [System.Id]>1 order by [System.Id] desc', P))
+      .toBe(`select [System.Id] from WorkItems where ${CLAUSE} AND ([System.Id]>1) order by [System.Id] desc`);
+  });
+
+  it('專案名稱含單引號時正確跳脫', () => {
+    expect(injectProjectFilter('SELECT [System.Id] FROM WorkItems', "It's"))
+      .toBe("SELECT [System.Id] FROM WorkItems WHERE [System.TeamProject] = 'It''s'");
   });
 });

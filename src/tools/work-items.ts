@@ -112,16 +112,20 @@ export function injectProjectFilter(query: string, project: string | undefined):
 
   const clause = `[System.TeamProject] = '${project.replace(/'/g, "''")}'`;
   const whereMatch = query.match(/\bWHERE\b/i);
+  const tailMatch = query.match(/\b(ORDER\s+BY|ASOF)\b/i);
 
   if (whereMatch) {
-    const idx = whereMatch.index!;
-    const head = query.slice(0, idx + whereMatch[0].length);
-    const tail = query.slice(idx + whereMatch[0].length);
-    return `${head} ${clause} AND (${tail.trim()})`;
+    const idx = whereMatch.index! + whereMatch[0].length;
+    // ORDER BY / ASOF 屬於查詢尾句，不可被包進條件括號內
+    const condEnd = tailMatch && tailMatch.index! > idx ? tailMatch.index! : query.length;
+    const head = query.slice(0, idx);
+    const cond = query.slice(idx, condEnd).trim();
+    const tail = query.slice(condEnd);
+    const rebuilt = `${head} ${clause} AND (${cond})`;
+    return tail ? `${rebuilt} ${tail.trim()}` : rebuilt;
   }
 
   // 沒有 WHERE：插在 ORDER BY / ASOF 之前，否則接在最後
-  const tailMatch = query.match(/\b(ORDER\s+BY|ASOF)\b/i);
   if (tailMatch) {
     const idx = tailMatch.index!;
     return `${query.slice(0, idx).trimEnd()} WHERE ${clause} ${query.slice(idx)}`;
