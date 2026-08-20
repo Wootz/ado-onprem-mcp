@@ -8,7 +8,7 @@
     "ado-onprem-mcp": "dist/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "watch": "tsc --watch",
     "test": "jest",
     "lint": "eslint src --ext .ts",
